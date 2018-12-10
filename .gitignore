@@ -1,0 +1,7 @@
+*.exe
+*.mxproject
+*.cfg
+/Debug
+/startup
+*.xml
+*.ld
