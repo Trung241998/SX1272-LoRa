@@ -6,7 +6,7 @@
 *.xml
 *.ld
 .mxproject
-.tsc
-.tsp
+*.tsc
+*.tsp
 /LoRaRxNode/Debug
 /LoRaTxNode/Debug
