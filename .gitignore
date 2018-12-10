@@ -5,3 +5,4 @@
 /startup
 *.xml
 *.ld
+.mxproject
