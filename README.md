@@ -5,4 +5,4 @@ The initial design consists of a LoRa transmiter and a LoRa receiver node. Each 
 
 Further versions of the project will be using a LoRa gateway to create a P2P network. 
 
-Please note that this project started on 19/11/18 and is still in development. Thus, full funtionality of the API have not yet been achieved.
+Please note that this project started on 19/11/18 and is still in development. Thus, full funtionality of the API have not yet been achieved. Stay tuned ;)
