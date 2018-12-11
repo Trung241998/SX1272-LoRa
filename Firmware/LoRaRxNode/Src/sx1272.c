@@ -48,8 +48,10 @@ void sx1272_lora_init(SX1272 *node) {
 
 	/* Reset pulse for programming mode */
 	HAL_GPIO_WritePin(GPIOA, GPIO_PIN_0, GPIO_PIN_RESET);
+
 	/* Wait until the device is ready to be programmed */
 	HAL_Delay(10);
+
 	/* Set current supply option */
 	sx1272_set_ocp(0x2B);
 
@@ -61,24 +63,24 @@ void sx1272_lora_init(SX1272 *node) {
 
 	/* Set modem configurations */
 	sx1272_set_modem_config(
-		(BW_125K << BAND_WIDTH) | (CR_4_5 << CODING_RATE) | (EXPLICIT_HEADER << HEADER_MODE) | (CRC_ENABLED << RX_CRC),
+		(BW_125K << BAND_WIDTH) | (CR_4_8 << CODING_RATE) | (EXPLICIT_HEADER << HEADER_MODE) | (CRC_ENABLED << RX_CRC),
 		(SF_12 << SPREADING_FACTOR) | (INTERNAL << AGC_MODE));
-	/* Set pay load length */
+
+	/* Set max pay load length */
 	sx1272_set_max_payload(PAYLOAD_LENGTH);
+	sx1272_set_payload_length(PAYLOAD_LENGTH);
+
 	/* Set base frequency */
 	sx1272_set_freq(CH_9117);
+
 	/* Set power output option */
 	sx1272_set_pa_config(0x02 | (RFIO << PA_SELECT)); //High output power. Double check threshold and supply.
+
 	/* Clear flags */
 	sx1272_clear_irq_flags();
 
-//	sx1272_set_pa_ramp();
-//	sx1272_set_lna();
+	/* Reset FIFO pointer */
 	sx1272_set_fifo_addr_ptr(0);
-//	sx1272_set_tx_base();
-//	sx1272_set_rx_base();
-//	sx1272_set_rx_current();
-//	sx1272_set_irq_mask();
 }
 
 /**
@@ -390,128 +392,119 @@ void sx1272_stdby() {
 }
 
 uint8_t sx1272_send(uint8_t dest_addr, uint8_t *data, uint8_t size, uint8_t ret, uint32_t timeout) {
-	uint8_t status = 1;
-	uint8_t op = 0;
+    uint8_t status = 1, op = 0;
 
-	//while ((status != 0) && (ret >= 0)) {
-
-	/* Save the current mode */
+    /* Save the current mode */
     op = sx1272_get_op_mode();
     sx1272_stdby();
     sx1272_set_sync_word(0x34); //LoRa MAC preamble
     sx1272_set_dio_mapping(MAP_DIO0_LORA_TXDONE | MAP_DIO1_LORA_NOP | MAP_DIO2_LORA_NOP);
     sx1272_set_irq_mask(~(0x08));
 
-    /* Clear flags */
+    /* Clears flags */
     sx1272_clear_irq_flags();
 
+    /* Sets TX pointer to bottom of FIFO page */
     sx1272_set_tx_base(0x00);
     sx1272_set_fifo_addr_ptr(0x00);
 
+    /* Writes packet data */
     sx1272_write_fifo(dest_addr); //dest
-//    sx1272_write_fifo(0); //source
-//    sx1272_write_fifo(0); //pack num
+    //sx1272_write_fifo(0); //source
+    //sx1272_write_fifo(0); //pack num
     sx1272_write_fifo(size); //length
-    for (int i = 0; i < 8; i++) {
+    for (int i = 0; i < 31; i++) {
         sx1272_write_fifo(data[i]);
     }
 
-	//sx1272_write_fifo(ret);
-
-	//	ret--;
-	//}
     /* Initialize TX mode to send the packet in FIFO */
     sx1272_set_op_mode((LORA << LRANGE_MODE) | (LORA_ACCESS << REG_SHARE) | (TX << MODE));
     status = sx1272_get_op_mode();
-	uint8_t flags = sx1272_get_irq_flags();
-	/* Poll IRQ register for TxDone flag */
-	while (!((flags & 0x8) >> 3)) {
-		flags = sx1272_get_irq_flags();
-		HAL_Delay(10); // Might use threads + semaphore in FreeRTOS
-	}
+    uint8_t flags = sx1272_get_irq_flags();
+    /* Polls IRQ register for TxDone flag */
+    while (!((flags & TX_DONE) >> TX_DONE_MASK)) {
+        flags = sx1272_get_irq_flags();
+        HAL_Delay(10); // Might use threads + semaphore in FreeRTOS
+    }
 
-	/* Packet has been successfully sent */
-	status = 0;
+    /* Packet has been successfully sent */
+    status = 0;
 
-	/* Clear FIFO */
-	sx1272_sleep();
+    /* Clears FIFO */
+    sx1272_sleep();
     /* Restore previous mode */
     sx1272_set_op_mode(op);
-    /* Clear flags */
+    /* Clears flags */
     sx1272_clear_irq_flags();
 
-	return status;
+    return status;
 }
 
 uint8_t sx1272_receive(uint8_t *rx_buffer, uint8_t size, uint32_t timeout) {
 	uint8_t status = 1, flags = 0, op = 0, prev, new;
 
-	/* Save the current mode */
+	/* Saves the current mode */
     op = sx1272_get_op_mode();
 
-	sx1272_set_detect_opt(0x43); //Possibly 0x03? top 4 bits are reserved according to datasheet?
+    /* Configures receiver mode */
+	sx1272_set_detect_opt(0x3);
 	sx1272_set_pa_ramp(0x09);
 	sx1272_set_lna(0x23);
-
 	sx1272_set_sync_word(0x34); //LoRa MAC preamble
+
+	/* Enables IO interrupts */
     sx1272_set_dio_mapping(MAP_DIO0_LORA_RXDONE | MAP_DIO1_LORA_RXTOUT | MAP_DIO2_LORA_NOP);
     sx1272_clear_irq_flags();
 
-
-	//sx1272_set_symb(0xFF) Must set symb reg timeout for single RX, not for continuous RX
-	sx1272_set_fifo_addr_ptr(0x00);
-	sx1272_set_rx_base(0x00);
-
-	/* Save current FIFO RX pointer */
+    /* Sets RX base current to the bottom of FIFO page */
+    sx1272_set_rx_base(0x00);
+    /* Saves current FIFO RX pointer */
 	prev = sx1272_get_rx_current_ptr();
+	/* Points FIFO pointer to the last packet received */
+    sx1272_set_fifo_addr_ptr(prev);
 
+    /* Registers the packet length */
 	sx1272_set_payload_length(size);
-	/* Initialize RxContinuous mode to receive packets */
+	/* Initializes RxContinuous mode to receive packets */
 	sx1272_set_op_mode((LORA << LRANGE_MODE) | (LORA_ACCESS << REG_SHARE) | (RX_CONT << MODE));
 
 	flags = sx1272_get_irq_flags();
-	/* Poll for ValidHeader flag */
-	while (!((flags & 0x10) >> 4)) {
+	/* Polls for ValidHeader flag */
+	while (!((flags & VALID_HDR) >> VALID_HDR_MASK)) {
 		flags = sx1272_get_irq_flags();
 		HAL_Delay(10); //Might use threads and semaphore when running FreeRTOS
 	}
 
-	/* Poll for RxDone flag */
-	while (!((flags & 0x40) >> 6)) {
+	/* Polls for RxDone flag */
+	while (!((flags & RXDONE) >> RXDONE_MASK)) {
 	        flags = sx1272_get_irq_flags();
 	        HAL_Delay(10); //Might use threads and semaphore when running FreeRTOS
 	}
 
-	//return sx1272_get_received_payload_length();
-	sx1272_set_fifo_addr_ptr(0x00);
-	/* Check for how many bytes have been received */
+	/* Checks for how many bytes have been received */
 	new = sx1272_get_rx_current_ptr();
+
 	if (new - prev <= 0) {
-	    return 2;
+	    /* Error has occurred */
+	    status = 2;
 	} else if ((new - prev) != size) {
-	    for (int i = 0; i < size; i++) {
-            spi_select();
-            uint8_t cmd = REG_LR_FIFO | READ;
-            HAL_SPI_Transmit(sx1272->hspi, &cmd, 1, 100);
-            HAL_SPI_Receive(sx1272->hspi, &rx_buffer[i], 1, 100);
-            spi_deselect();
-	    }
+	    /* Error has occurred */
+	    status = 3;
 	} else {
-        /* Read and copy received data in FIFO */ // Might move this whole thing into an ISR
+        /* Reads and copies received data in FIFO to buffer */
         spi_select();
         uint8_t cmd = REG_LR_FIFO | READ;
         HAL_SPI_Transmit(sx1272->hspi, &cmd, 1, 100);
         HAL_SPI_Receive(sx1272->hspi, rx_buffer, size, 100);
         spi_deselect();
 
+        /* Packet is successfully received */
         status = 0;
-	}
-	/* Restore initial mode */
-	sx1272_set_op_mode((LORA << LRANGE_MODE) | (LORA_ACCESS << REG_SHARE) | (SLEEP << MODE));
 
-	sx1272_set_op_mode(op);
-	sx1272_set_fifo_addr_ptr(0x00);
-	sx1272_clear_irq_flags();
+        /* Restores initial mode */
+        sx1272_set_op_mode(op);
+        sx1272_clear_irq_flags();
+	}
 
 	return status;
 }
@@ -562,6 +555,18 @@ uint8_t sx1272_get_received_payload_length() {
     spi_deselect();
 
     return bytes;
+}
+
+uint8_t sx1272_get_hop_channel() {
+    uint8_t cmd = REG_LR_HOPCHANNEL | READ;
+    uint8_t hop = -1;
+
+    spi_select();
+    HAL_SPI_Transmit(sx1272->hspi, &cmd, 1, SPI_TIMEOUT);
+    HAL_SPI_Receive(sx1272->hspi, &hop, 1, SPI_TIMEOUT);
+    spi_deselect();
+
+    return hop;
 }
 
 uint16_t sx1272_get_modem_config() {

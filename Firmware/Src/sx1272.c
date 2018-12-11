@@ -63,12 +63,11 @@ void sx1272_lora_init(SX1272 *node) {
 
 	/* Set modem configurations */
 	sx1272_set_modem_config(
-		(BW_125K << BAND_WIDTH) | (CR_4_8 << CODING_RATE) | (EXPLICIT_HEADER << HEADER_MODE) | (CRC_ENABLED << RX_CRC),
+		(BW_125K << BAND_WIDTH) | (CR_4_5 << CODING_RATE) | (EXPLICIT_HEADER << HEADER_MODE) | (CRC_ENABLED << RX_CRC),
 		(SF_12 << SPREADING_FACTOR) | (INTERNAL << AGC_MODE));
 
-	/* Set max pay load length */
+	/* Set pay load length */
 	sx1272_set_max_payload(PAYLOAD_LENGTH);
-	sx1272_set_payload_length(PAYLOAD_LENGTH);
 
 	/* Set base frequency */
 	sx1272_set_freq(CH_9117);
@@ -413,7 +412,7 @@ uint8_t sx1272_send(uint8_t dest_addr, uint8_t *data, uint8_t size, uint8_t ret,
     //sx1272_write_fifo(0); //source
     //sx1272_write_fifo(0); //pack num
     sx1272_write_fifo(size); //length
-    for (int i = 0; i < 30; i++) {
+    for (int i = 0; i < 31; i++) {
         sx1272_write_fifo(data[i]);
     }
 
@@ -422,7 +421,7 @@ uint8_t sx1272_send(uint8_t dest_addr, uint8_t *data, uint8_t size, uint8_t ret,
     status = sx1272_get_op_mode();
     uint8_t flags = sx1272_get_irq_flags();
     /* Polls IRQ register for TxDone flag */
-    while (!((flags & TX_DONE) >> TX_DONE_MASK)) {
+    while (!((flags & 0x8) >> 3)) {
         flags = sx1272_get_irq_flags();
         HAL_Delay(10); // Might use threads + semaphore in FreeRTOS
     }
@@ -470,13 +469,13 @@ uint8_t sx1272_receive(uint8_t *rx_buffer, uint8_t size, uint32_t timeout) {
 
 	flags = sx1272_get_irq_flags();
 	/* Polls for ValidHeader flag */
-	while (!((flags & VALID_HDR) >> VALID_HDR_MASK)) {
+	while (!((flags & 0x10) >> 4)) {
 		flags = sx1272_get_irq_flags();
 		HAL_Delay(10); //Might use threads and semaphore when running FreeRTOS
 	}
 
 	/* Polls for RxDone flag */
-	while (!((flags & RXDONE) >> RXDONE_MASK)) {
+	while (!((flags & 0x40) >> 6)) {
 	        flags = sx1272_get_irq_flags();
 	        HAL_Delay(10); //Might use threads and semaphore when running FreeRTOS
 	}

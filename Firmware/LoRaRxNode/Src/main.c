@@ -115,21 +115,19 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-      ptr = sx1272_get_rx_current_ptr();
-      rcv = sx1272_receive(data, PAYLOAD_LENGTH, 10);
+    rcv = sx1272_receive(data, PAYLOAD_LENGTH, 10);
 
-          HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5);
-          rx0 = data[0];
-          rx1 = data[1];
-          rx2 = data[2];
-          rx3 = data[3];
-          rx4 = data[4];
-           rx5 = data[5];
-           rx6 = data[6];
-           rx7 = data[7];
+    HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5);
+    rx0 = data[0];
+    rx1 = data[1];
+    rx2 = data[2];
+    rx3 = data[3];
+    rx4 = data[4];
+    rx5 = data[5];
+    rx6 = data[6];
+    rx7 = data[7];
 
-
-      HAL_Delay(10);
+    HAL_Delay(10);
 
   /* USER CODE END WHILE */
 

@@ -114,13 +114,13 @@ int main(void)
   MX_SPI1_Init();
   MX_I2C1_Init();
   /* USER CODE BEGIN 2 */
-  config.CarrierFreq = 0;
 
   node.hspi = &hspi1;
   node.config = &config;
 
   sx1272_lora_init(&node);
 
+  /* Dummy data */
   data[0] = 0xCA;
   data[1] = 0xFE;
   data[2] = 0xBB;
@@ -136,26 +136,8 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-	  //HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5);
-	  HAL_Delay(500);
-	  modem = sx1272_get_modem_config();
-	  freq = sx1272_get_freq();
-
-	  op = sx1272_get_op_mode();
-
-	  HAL_Delay(100);
-
-	  cmd1 = REG_LR_OCP | READ;
-
-	  spi_select();
-	  HAL_SPI_Transmit(&hspi1, &cmd1, 1, SPI_TIMEOUT);
-	  HAL_SPI_Receive(&hspi1, &ocp, 1, SPI_TIMEOUT);
-	  spi_deselect();
-
 	  flags = sx1272_send(0x01, data, PAYLOAD_LENGTH, 1, 100);
-	  //memcpy(&test, &g32, sizeof(float)); -> Conver uint32_t to float
-
-
+	  HAL_Delay(200);
   /* USER CODE END WHILE */
 
   /* USER CODE BEGIN 3 */

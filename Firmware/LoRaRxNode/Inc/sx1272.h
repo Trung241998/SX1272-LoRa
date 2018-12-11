@@ -75,12 +75,15 @@
 
 
 #define PAYLOAD_LENGTH 32
+#define HEADER_LENGTH  4
+#define CRC_LENGTH     2
 
-#define MAP_DIO0_LORA_RXDONE   0x00  // 00------
-#define MAP_DIO0_LORA_TXDONE   0x40  // 01------
-#define MAP_DIO1_LORA_RXTOUT   0x00  // --00----
-#define MAP_DIO1_LORA_NOP      0x30  // --11----
-#define MAP_DIO2_LORA_NOP      0xC0  // ----11--
+
+#define MAP_DIO0_LORA_RXDONE   0x00
+#define MAP_DIO0_LORA_TXDONE   0x40
+#define MAP_DIO1_LORA_RXTOUT   0x00
+#define MAP_DIO1_LORA_NOP      0x30
+#define MAP_DIO2_LORA_NOP      0xC0
 
 /* Bit options */
 /* ---------- RegOpMode ---------- */
@@ -366,6 +369,7 @@ uint8_t sx1272_get_rx_current_ptr();
 uint8_t sx1272_get_irq_flags();
 uint8_t sx1272_get_op_mode();
 uint8_t sx1272_get_received_payload_length();
+uint8_t sx1272_get_hop_channel();
 uint8_t sx1272_send(uint8_t dest_addr, uint8_t *data, uint8_t size, uint8_t ret, uint32_t timeout);
 uint8_t sx1272_receive(uint8_t *rx_buffer, uint8_t size, uint32_t timeout);
 uint16_t sx1272_get_modem_config();
