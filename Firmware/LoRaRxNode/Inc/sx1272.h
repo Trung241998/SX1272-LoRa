@@ -73,10 +73,10 @@
 #define REG_PLL_LOW_PN                              0x5E
 #define REG_BIT_RATE_FRAC                           0x70
 
-
-#define PAYLOAD_LENGTH 32
-#define HEADER_LENGTH  4
-#define CRC_LENGTH     2
+#define MAX_PACKET_LENGTH                           64
+#define PAYLOAD_LENGTH                              32
+#define HEADER_LENGTH                               2
+#define CRC_LENGTH                                  2
 
 
 #define MAP_DIO0_LORA_RXDONE   0x00
@@ -359,6 +359,7 @@ void sx1272_set_invert_iq(uint8_t inv);
 void sx1272_set_detect_thres(uint8_t thres);
 void sx1272_set_sync_word(uint8_t sync);
 void sx1272_set_dio_mapping(uint8_t map);
+
 void sx1272_clear_irq_flags();
 void sx1272_write_fifo(uint8_t value);
 void sx1272_clear_fifo();

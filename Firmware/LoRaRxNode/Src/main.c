@@ -53,7 +53,7 @@ SX1272 node;
 Config_Group config;
 uint16_t modem = 0;
 uint8_t flags = 0, rcv = -1;
-uint8_t data[PAYLOAD_LENGTH];
+uint8_t data[PAYLOAD_LENGTH + HEADER_LENGTH];
 uint8_t rx0 = 0, rx1 = 0, rx2 = 0, rx3 = 0, rx4 = 0, rx5 = 0, rx6 = 0, rx7 = 0, ptr;
 
 /* USER CODE END PV */
@@ -115,9 +115,10 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-    rcv = sx1272_receive(data, PAYLOAD_LENGTH, 10);
+    rcv = sx1272_receive(data, PAYLOAD_LENGTH + HEADER_LENGTH, 10);
 
     HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5);
+
     rx0 = data[0];
     rx1 = data[1];
     rx2 = data[2];

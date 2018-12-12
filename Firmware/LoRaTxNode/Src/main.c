@@ -56,7 +56,7 @@ SPI_HandleTypeDef hspi1;
 SX1272 node;
 Config_Group config;
 uint32_t freq = 0, g32 = 0x41466666;
-uint16_t modem = 0;
+uint16_t modem = 0, crc = 0;
 uint8_t op = 0, ocp = 0, flags = 0;
 uint8_t cmd1 = REG_LR_OP_MODE | READ;
 uint8_t t1 = 0, t2 = 0;
@@ -121,23 +121,27 @@ int main(void)
   sx1272_lora_init(&node);
 
   /* Dummy data */
-  data[0] = 0xCA;
-  data[1] = 0xFE;
-  data[2] = 0xBB;
-  data[3] = 0x78;
-  data[4] = 0x15;
-  data[5] = 0x11;
-  data[6] = 0x66;
-  data[7] = 0x39;
+  data[0] = 0x55;
+  data[1] = 0x17;
+  data[2] = 0x22;
+  data[3] = 0x10;
+  data[4] = 0x34;
+  data[5] = 0x89;
+  data[6] = 0xA3;
+  data[7] = 0x5F;
+  for (int i = 8; i < 32; i++) {
+      data[i] = 0;
+  }
 
+  crc = radio_packet_crc_compute(data, 32, CRC_TYPE_IBM);
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-	  flags = sx1272_send(0x01, data, PAYLOAD_LENGTH, 1, 100);
-	  HAL_Delay(200);
+	  flags = sx1272_send(0x5, data, PAYLOAD_LENGTH + HEADER_LENGTH, 1, 100);
+	  HAL_Delay(10000);
   /* USER CODE END WHILE */
 
   /* USER CODE BEGIN 3 */
