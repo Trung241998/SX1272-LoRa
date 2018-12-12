@@ -322,22 +322,16 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 
 void log_temp() {
 	HAL_I2C_Mem_Read(&hi2c1, 0x52 << 1, 0x7, 1, ts, 2, 100);
-	t1 = ts[0];
-	t2 = ts[1];
-
-	temp = ((ts[1] << 8) | ts[0]) * 0.02 - 273.15;
+	data[8] = ts[0];
+	data[9] = ts[1];
 
 	HAL_I2C_Mem_Read(&hi2c1, 0x51 << 1, 0x7, 1, ts, 2, 100);
-	t1 = ts[0];
-	t2 = ts[1];
-
-	temp1 = ((ts[1] << 8) | ts[0]) * 0.02 - 273.15;
+	data[10] = ts[0];
+	data[11] = ts[1];
 
 	HAL_I2C_Mem_Read(&hi2c1, 0x53 << 1, 0x7, 1, ts, 2, 100);
-	t1 = ts[0];
-	t2 = ts[1];
-
-	temp2 = ((ts[1] << 8) | ts[0]) * 0.02 - 273.15;
+	data[12] = ts[0];
+	data[13] = ts[1];
 }
 /* USER CODE END 4 */
 
