@@ -140,8 +140,9 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
+      log_temp();
 	  flags = sx1272_send(0x5, data, PAYLOAD_LENGTH + HEADER_LENGTH, 1, 100);
-	  HAL_Delay(10000);
+	  HAL_Delay(100);
   /* USER CODE END WHILE */
 
   /* USER CODE BEGIN 3 */

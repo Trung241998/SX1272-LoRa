@@ -56,6 +56,8 @@ uint8_t flags = 0, rcv = -1;
 uint8_t data[PAYLOAD_LENGTH + HEADER_LENGTH];
 uint8_t rx0 = 0, rx1 = 0, rx2 = 0, rx3 = 0, rx4 = 0, rx5 = 0, rx6 = 0, rx7 = 0, ptr;
 
+float temp0, temp1, temp2;
+
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -128,7 +130,11 @@ int main(void)
     rx6 = data[6];
     rx7 = data[7];
 
-    HAL_Delay(10);
+    temp0 = ((((uint16_t) data[15]) << 8) | ((uint16_t) data[14])) * 0.02 - 273.15;
+    temp1 = ((((uint16_t) data[11]) << 8) | (uint16_t) data[10]) * 0.02 - 273.15;
+    temp2 = ((((uint16_t) data[13]) << 8) | (uint16_t) data[12]) * 0.02 - 273.15;
+
+    HAL_Delay(100);
 
   /* USER CODE END WHILE */
 
