@@ -10,7 +10,7 @@
   * inserted by the user or by software development tools
   * are owned by their respective copyright owners.
   *
-  * COPYRIGHT(c) 2018 STMicroelectronics
+  * COPYRIGHT(c) 2019 STMicroelectronics
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -50,6 +50,8 @@ I2C_HandleTypeDef hi2c1;
 
 SPI_HandleTypeDef hspi1;
 
+UART_HandleTypeDef huart2;
+
 /* USER CODE BEGIN PV */
 /* Private variables ---------------------------------------------------------*/
 
@@ -71,6 +73,7 @@ void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_SPI1_Init(void);
 static void MX_I2C1_Init(void);
+static void MX_USART2_UART_Init(void);
 
 /* USER CODE BEGIN PFP */
 /* Private function prototypes -----------------------------------------------*/
@@ -113,6 +116,7 @@ int main(void)
   MX_GPIO_Init();
   MX_SPI1_Init();
   MX_I2C1_Init();
+  MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
 
   node.hspi = &hspi1;
@@ -142,7 +146,7 @@ int main(void)
   {
       log_temp();
 	  flags = sx1272_send(0x5, data, PAYLOAD_LENGTH + HEADER_LENGTH, 1, 100);
-	  HAL_Delay(100);
+	  HAL_Delay(2000);
   /* USER CODE END WHILE */
 
   /* USER CODE BEGIN 3 */
@@ -255,6 +259,25 @@ static void MX_SPI1_Init(void)
 
 }
 
+/* USART2 init function */
+static void MX_USART2_UART_Init(void)
+{
+
+  huart2.Instance = USART2;
+  huart2.Init.BaudRate = 115200;
+  huart2.Init.WordLength = UART_WORDLENGTH_8B;
+  huart2.Init.StopBits = UART_STOPBITS_1;
+  huart2.Init.Parity = UART_PARITY_NONE;
+  huart2.Init.Mode = UART_MODE_TX_RX;
+  huart2.Init.HwFlowCtl = UART_HWCONTROL_NONE;
+  huart2.Init.OverSampling = UART_OVERSAMPLING_16;
+  if (HAL_UART_Init(&huart2) != HAL_OK)
+  {
+    _Error_Handler(__FILE__, __LINE__);
+  }
+
+}
+
 /** Configure pins as 
         * Analog 
         * Input 
@@ -325,6 +348,8 @@ void log_temp() {
 	HAL_I2C_Mem_Read(&hi2c1, 0x52 << 1, 0x7, 1, ts, 2, 100);
 	data[8] = ts[0];
 	data[9] = ts[1];
+
+	HAL_UART_Transmit(&huart2, ts, 2, 100);
 
 	HAL_I2C_Mem_Read(&hi2c1, 0x51 << 1, 0x7, 1, ts, 2, 100);
 	data[10] = ts[0];

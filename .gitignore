@@ -10,3 +10,6 @@
 *.tsp
 /LoRaRxNode/Debug
 /LoRaTxNode/Debug
+/Hardware/History
+/Hardware/Projects Logs for IoTNode
+/Hardware/_Previews

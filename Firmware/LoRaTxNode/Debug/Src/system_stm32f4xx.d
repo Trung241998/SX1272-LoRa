@@ -26,7 +26,8 @@ Src/system_stm32f4xx.o: ../Src/system_stm32f4xx.c \
  D:/Research/SX1272-LoRa/Firmware/LoRaTxNode/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_i2c_ex.h \
  D:/Research/SX1272-LoRa/Firmware/LoRaTxNode/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_pwr.h \
  D:/Research/SX1272-LoRa/Firmware/LoRaTxNode/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_pwr_ex.h \
- D:/Research/SX1272-LoRa/Firmware/LoRaTxNode/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_spi.h
+ D:/Research/SX1272-LoRa/Firmware/LoRaTxNode/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_spi.h \
+ D:/Research/SX1272-LoRa/Firmware/LoRaTxNode/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_uart.h
 
 D:/Research/SX1272-LoRa/Firmware/LoRaTxNode/Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f4xx.h:
 
@@ -83,3 +84,5 @@ D:/Research/SX1272-LoRa/Firmware/LoRaTxNode/Drivers/STM32F4xx_HAL_Driver/Inc/stm
 D:/Research/SX1272-LoRa/Firmware/LoRaTxNode/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_pwr_ex.h:
 
 D:/Research/SX1272-LoRa/Firmware/LoRaTxNode/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_spi.h:
+
+D:/Research/SX1272-LoRa/Firmware/LoRaTxNode/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_uart.h:

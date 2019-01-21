@@ -65,14 +65,14 @@ void sx1272_lora_init(SX1272 *node) {
      * spreading factor and minimum bandwidth are selected */
 	sx1272_set_modem_config(
 		(BW_125K << BAND_WIDTH) | (CR_4_8 << CODING_RATE) | (EXPLICIT_HEADER << HEADER_MODE) | (CRC_ENABLED << RX_CRC),
-		(SF_12 << SPREADING_FACTOR) | (INTERNAL << AGC_MODE));
+		(SF_7 << SPREADING_FACTOR) | (INTERNAL << AGC_MODE));
 
 	/* Set max pay load length */
 	sx1272_set_max_payload(MAX_PACKET_LENGTH);
 	sx1272_set_payload_length(PAYLOAD_LENGTH + HEADER_LENGTH + CRC_LENGTH);
 
 	/* Set base frequency */
-	sx1272_set_freq(CH_9117);
+	sx1272_set_freq(CH_8675);
 
 	/* Set power output option */
 	sx1272_set_pa_config(0x02 | (RFIO << PA_SELECT)); //High output power. Double check threshold and supply.
@@ -420,7 +420,7 @@ uint8_t sx1272_send(uint8_t dest_addr, uint8_t *data, uint8_t size, uint8_t ret,
         sx1272_write_fifo(data[i]);
     }
     /* 2 bytes CRC for pay load */
-    uint16_t crc = radio_packet_crc_compute(data, size - HEADER_LENGTH, CRC_TYPE_IBM);
+    uint16_t crc = radio_packet_crc_compute(data, size, CRC_TYPE_IBM);
     sx1272_write_fifo((uint8_t) (crc >> 8));
     sx1272_write_fifo((uint8_t) crc);
 

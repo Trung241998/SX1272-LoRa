@@ -269,14 +269,15 @@ typedef enum {
 	CH_8664 = 0xD89999, // channel 14, central freq = 866.40MHz
 	CH_8667 = 0xD8ACCC, // channel 15, central freq = 866.70MHz
 	CH_8670 = 0xD8C000, // channel 16, central freq = 867.00MHz
+	CH_8675 = 0xD8E000, // channel 17, central freq = 867.50MHz
 	CH_8680 = 0xD90000, // channel 16, central freq = 868.00MHz
-	CH_9031 = 0xE1C51E, // channel 00, central freq = 903.08MHz
+	CH_9031 = 0xE1D99A, // channel 00, central freq = 903.4MHz
 	CH_9052 = 0xE24F5C, // channel 01, central freq = 905.24MHz
 	CH_9074 = 0xE2D999, // channel 02, central freq = 907.40MHz
 	CH_9095 = 0xE363D7, // channel 03, central freq = 909.56MHz
 	CH_9117 = 0xE3EE14, // channel 04, central freq = 911.72MHz
 	CH_9139 = 0xE47851, // channel 05, central freq = 913.88MHz
-	CH_9160 = 0xE5028F, // channel 06, central freq = 916.04MHz
+	CH_9160 = 0xE50000, // channel 06, central freq = 916.04MHz
 	CH_9182 = 0xE58CCC, // channel 07, central freq = 918.20MHz
 	CH_9203 = 0xE6170A, // channel 08, central freq = 920.36MHz
 	CH_9225 = 0xE6A147, // channel 09, central freq = 922.52MHz
